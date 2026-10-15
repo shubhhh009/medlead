@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# Local authentication cookies and backups
+cookies.txt
+*.backup
+*.bak
+
+# Local tool configuration
+.claude/
+.windsurf/
+.agents/
