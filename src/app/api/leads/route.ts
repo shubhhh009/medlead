@@ -36,7 +36,49 @@ export async function GET(request: NextRequest) {
     const params = request.nextUrl.searchParams;
     const search = params.get("search")?.trim() ?? "";
     const status = params.get("status") ?? "";
+    const country = params.get("country")?.trim() ?? "";
+    const fromDate = params.get("fromDate") ?? "";
+    const toDate = params.get("toDate") ?? "";
     const treatment = params.get("treatment") ?? "";
+    const validDate = (value: string) => {
+  if (!value) return true;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return (
+    !Number.isNaN(date.getTime()) &&
+    date.toISOString().slice(0, 10) === value
+  );
+};
+
+if (!validDate(fromDate) || !validDate(toDate)) {
+  return NextResponse.json(
+    { success: false, message: "Invalid date filter. Use YYYY-MM-DD." },
+    { status: 400 }
+  );
+}
+
+if (fromDate && toDate && fromDate > toDate) {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Start date must be before or equal to end date.",
+    },
+    { status: 400 }
+  );
+}
+
+const startDate = fromDate
+  ? new Date(`${fromDate}T00:00:00.000Z`)
+  : undefined;
+
+const endDateExclusive = toDate
+  ? new Date(
+      new Date(`${toDate}T00:00:00.000Z`).getTime() +
+        24 * 60 * 60 * 1000
+    )
+  : undefined;
+  
     const requestedPage = Number(params.get("page") ?? "1");
     const requestedLimit = Number(params.get("limit") ?? "10");
 
@@ -75,8 +117,19 @@ export async function GET(request: NextRequest) {
       ...(status
         ? { status: status as (typeof validStatuses)[number] }
         : {}),
-      ...(treatment
+            ...(treatment
         ? { treatment: treatment as (typeof validTreatments)[number] }
+        : {}),
+      ...(country
+        ? { country: { equals: country, mode: "insensitive" as const } }
+        : {}),
+      ...(startDate || endDateExclusive
+        ? {
+            createdAt: {
+              ...(startDate ? { gte: startDate } : {}),
+              ...(endDateExclusive ? { lt: endDateExclusive } : {}),
+            },
+          }
         : {}),
       ...(search
         ? {
@@ -93,7 +146,7 @@ export async function GET(request: NextRequest) {
     const [leads, total] = await prisma.$transaction([
       prisma.lead.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
         select: {

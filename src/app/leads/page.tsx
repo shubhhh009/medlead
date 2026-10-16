@@ -92,6 +92,9 @@ export default function LeadsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [treatment, setTreatment] = useState("");
+  const [country, setCountry] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
 
   const [pagination, setPagination] = useState<Pagination>({
@@ -134,6 +137,9 @@ export default function LeadsPage() {
       if (search.trim()) params.set("search", search.trim());
       if (status) params.set("status", status);
       if (treatment) params.set("treatment", treatment);
+      if (country.trim()) params.set("country", country.trim());
+      if (fromDate) params.set("fromDate", fromDate);
+      if (toDate) params.set("toDate", toDate);
 
       const response = await fetch(`/api/leads?${params.toString()}`, {
         credentials: "include",
@@ -160,7 +166,7 @@ export default function LeadsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, status, treatment, router]);
+  }, [page, search, status, treatment, country, fromDate, toDate, router]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -464,13 +470,48 @@ export default function LeadsPage() {
           <p className="text-sm text-slate-500">
             {pagination.total} lead{pagination.total === 1 ? "" : "s"} found
           </p>
-          <button
-            onClick={() => void loadLeads()}
-            disabled={loading}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-50"
-          >
-            Refresh
-          </button>
+        </div>
+
+        <div className="mb-5 grid grid-cols-1 items-end gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
+            <span>Country</span>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => { setCountry(e.target.value); setPage(1); }}
+              placeholder="All countries"
+              aria-label="Filter by country"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-normal text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
+            <span>From date</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-normal text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
+            <span>To date</span>
+            <input
+              type="date"
+              value={toDate}
+              min={fromDate || undefined}
+              onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-normal text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </label>
+          <div className="flex items-end">
+            <button
+              onClick={() => void loadLeads()}
+              disabled={loading}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "Refresh"}
+            </button>
+          </div>
         </div>
 
         {error && (
