@@ -1,36 +1,176 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MedLead — Patient Inquiry CRM
+
+A full-stack patient inquiry management system designed to help healthcare teams manage incoming patient inquiries, coordinate follow-ups, assign leads to tele-callers, and track progress through a structured pipeline.
+
+**[Live Demo](https://medlead.vercel.app/)** · **[GitHub Repository](https://github.com/shubhhh009/medlead)**
+
+## Screenshots
+
+### 1. Patient Inquiry Form
+
+Public-facing form for patients to submit treatment inquiries and contact details.
+
+![Patient Inquiry Form](docs/screenshots/patient-inquiry.png)
+
+### 2. Login Page
+
+Authentication interface for authorized team members.
+
+![MedLead Login](docs/screenshots/login.png)
+
+### 3. Admin Dashboard
+
+Overview of patient leads, lead statuses, conversion progress, and team members.
+
+![Admin Dashboard](docs/screenshots/admin-dashboard.png)
+
+### 4. Patient Leads Management
+
+Search and filter patient records, update lead statuses, and assign inquiries to tele-callers.
+
+![Patient Leads Management](docs/screenshots/leads-management.png)
+
+### 5. Lead Management with Notes
+
+Review lead records and access notes and follow-up information.
+
+![Lead Notes](docs/screenshots/leads-notes-column.png)
+
+### 6. Activity Timeline
+
+Track status changes, lead assignments, and notes with timestamps and activity attribution.
+
+![Activity Timeline](docs/screenshots/activity-timeline.png)
+
+### 7. Notes History
+
+Review previously recorded patient follow-up notes.
+
+![Notes History](docs/screenshots/notes-history.png)
+
+## Key Features
+
+- **Patient Inquiry Submission:** Collect patient contact details, country, treatment requirements, preferred city, and inquiry description.
+- **Authentication:** Login and logout functionality with secure, HTTP-only authentication cookies.
+- **Role-Based Access Control:** Separate permissions for administrators and tele-callers.
+- **Lead Management:** View, search, filter, and paginate patient inquiries.
+- **Lead Assignment:** Administrators can assign inquiries to tele-callers.
+- **Pipeline Tracking:** Track statuses from New through Contacted, Reports Received, Quotation Sent, Travel Planned, Converted, and Lost.
+- **Notes Management:** Add and review notes associated with patient leads.
+- **Activity Timeline:** Record lead creation, assignments, status updates, and note activity.
+- **Dashboard Analytics:** View lead counts, pipeline distribution, and team overview.
+- **Duplicate Prevention:** Validate duplicate email addresses or phone numbers when submitting inquiries.
+
+## Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | Next.js, React, TypeScript |
+| Backend | Next.js Route Handlers |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Authentication | JWT using JOSE, bcryptjs |
+| Styling | Tailwind CSS |
+| Deployment | Vercel |
+| Database Hosting | Supabase |
+
+## Application Roles
+
+### Administrator
+- View and manage all patient leads.
+- Assign leads to tele-callers.
+- Update lead statuses.
+- Review notes and activity history.
+- View dashboard metrics and team information.
+
+### Tele-caller
+- View assigned leads.
+- Update lead statuses for assigned records.
+- Add follow-up notes.
+- Review the lead activity timeline.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js compatible with the project's Next.js version
+- npm
+- PostgreSQL database
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/shubhhh009/medlead.git
+cd medlead
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file in the project root and configure the required values:
+
+```env
+DATABASE_URL="your_postgresql_connection_string"
+JWT_SECRET="your_strong_random_secret"
+```
+
+Use your own database connection string and a strong secret. Never commit `.env` or production credentials to GitHub.
+
+### 4. Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### 5. Apply database migrations
+
+```bash
+npx prisma migrate deploy
+```
+
+Ensure the database is configured and migrations are present before running this command.
+
+### 6. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 7. Verify the production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The application is deployed on Vercel, with PostgreSQL hosted on Supabase.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Live application:** https://medlead.vercel.app/
+- **Source code:** https://github.com/shubhhh009/medlead
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Configure the required environment variables in the deployment platform before deploying.
 
-## Deploy on Vercel
+## Security Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Keep database credentials and JWT secrets out of source control.
+- Use strong, unique production secrets.
+- Restrict access to authorized users and assigned leads.
+- Use fictional data for public demonstrations; do not publish real patient information.
+- Configure demo accounts and permissions safely before sharing access publicly.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Purpose
+
+MedLead demonstrates full-stack application development, relational database integration, authentication, role-based authorization, CRUD operations, workflow management, audit-style activity tracking, and cloud deployment.
+
+---
+
+*Built as a full-stack patient inquiry CRM project.*

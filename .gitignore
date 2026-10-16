@@ -51,3 +51,7 @@ cookies.txt
 .claude/
 .windsurf/
 .agents/
+
+# Local development backups
+*.before-activity
+*.before-assignment
