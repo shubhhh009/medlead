@@ -1,58 +1,101 @@
 # MedLead — Patient Inquiry CRM
 
-A full-stack patient inquiry and lead management platform built to help healthcare teams manage international patient inquiries, assign leads, track treatment journeys, and maintain follow-up activity.
+A full-stack patient inquiry management system designed to help healthcare teams manage incoming patient inquiries, coordinate follow-ups, assign leads to tele-callers, and track progress through a structured pipeline.
 
-<p align="center">
-  <a href="https://medlead.vercel.app/"><strong>Live Demo</strong></a> ·
-  <a href="https://github.com/shubhhh009/medlead"><strong>GitHub Repository</strong></a>
-</p>
+**[Live Demo](https://medlead.vercel.app/)** · **[GitHub Repository](https://github.com/shubhhh009/medlead)**
 
-## Overview
+## Screenshots
 
-MedLead centralizes patient inquiries in a CRM workflow. Administrators can manage incoming leads, assign them to tele-callers, monitor lead statuses, and review notes and activity history.
+### 1. Patient Inquiry Form
+
+Public-facing form for patients to submit treatment inquiries and contact details.
+
+![Patient Inquiry Form](docs/screenshots/patient-inquiry.png)
+
+### 2. Login Page
+
+Authentication interface for authorized team members.
+
+![MedLead Login](docs/screenshots/login.png)
+
+### 3. Admin Dashboard
+
+Overview of patient leads, lead statuses, conversion progress, and team members.
+
+![Admin Dashboard](docs/screenshots/admin-dashboard.png)
+
+### 4. Patient Leads Management
+
+Search and filter patient records, update lead statuses, and assign inquiries to tele-callers.
+
+![Patient Leads Management](docs/screenshots/leads-management.png)
+
+### 5. Lead Management with Notes
+
+Review lead records and access notes and follow-up information.
+
+![Lead Notes](docs/screenshots/leads-notes-column.png)
+
+### 6. Activity Timeline
+
+Track status changes, lead assignments, and notes with timestamps and activity attribution.
+
+![Activity Timeline](docs/screenshots/activity-timeline.png)
+
+### 7. Notes History
+
+Review previously recorded patient follow-up notes.
+
+![Notes History](docs/screenshots/notes-history.png)
 
 ## Key Features
 
-- **Patient Inquiry Form:** Collect patient contact details, country, treatment preferences, preferred city, and inquiry descriptions.
-- **Lead Management:** Search, filter, and paginate patient inquiries.
-- **Lead Status Workflow:** Track leads from New through Contacted, Reports Received, Quotation Sent, Travel Planned, Converted, or Lost.
-- **Role-Based Access Control:** Separate Admin and Tele-caller permissions.
-- **Lead Assignment:** Assign patient inquiries to tele-callers.
-- **Notes and Activity Timeline:** Maintain notes and track lead-related updates.
-- **Dashboard:** Review lead statistics and team information.
-- **Authentication:** Login/logout with JWT-based authentication and password hashing.
-- **Duplicate Prevention:** Detect duplicate inquiries using email or phone information.
+- **Patient Inquiry Submission:** Collect patient contact details, country, treatment requirements, preferred city, and inquiry description.
+- **Authentication:** Login and logout functionality with secure, HTTP-only authentication cookies.
+- **Role-Based Access Control:** Separate permissions for administrators and tele-callers.
+- **Lead Management:** View, search, filter, and paginate patient inquiries.
+- **Lead Assignment:** Administrators can assign inquiries to tele-callers.
+- **Pipeline Tracking:** Track statuses from New through Contacted, Reports Received, Quotation Sent, Travel Planned, Converted, and Lost.
+- **Notes Management:** Add and review notes associated with patient leads.
+- **Activity Timeline:** Record lead creation, assignments, status updates, and note activity.
+- **Dashboard Analytics:** View lead counts, pipeline distribution, and team overview.
+- **Duplicate Prevention:** Validate duplicate email addresses or phone numbers when submitting inquiries.
 
-## Tech Stack
+## Technology Stack
 
 | Layer | Technologies |
 |---|---|
-| Frontend | Next.js, React, TypeScript, Tailwind CSS |
-| Backend | Next.js API Routes |
-| Database | PostgreSQL with Supabase |
+| Frontend | Next.js, React, TypeScript |
+| Backend | Next.js Route Handlers |
+| Database | PostgreSQL |
 | ORM | Prisma |
-| Authentication | jose, JWT, bcryptjs |
+| Authentication | JWT using JOSE, bcryptjs |
+| Styling | Tailwind CSS |
 | Deployment | Vercel |
-| Version Control | Git, GitHub |
+| Database Hosting | Supabase |
 
-## Application Screenshots
+## Application Roles
 
-Screenshots will be added here.
+### Administrator
+- View and manage all patient leads.
+- Assign leads to tele-callers.
+- Update lead statuses.
+- Review notes and activity history.
+- View dashboard metrics and team information.
 
-<!-- Add screenshots to the screenshots/ directory and embed them below.
-Example:
-![Patient Inquiry Form](screenshots/01-patient-inquiry.png)
-![Admin Dashboard](screenshots/02-admin-dashboard.png)
-![Lead Management](screenshots/03-leads-management.png)
-![Activity Timeline](screenshots/04-activity-timeline.png)
--->
+### Tele-caller
+- View assigned leads.
+- Update lead statuses for assigned records.
+- Add follow-up notes.
+- Review the lead activity timeline.
 
-## Run Locally
+## Getting Started
 
 ### Prerequisites
 
-- Node.js and npm
-- A PostgreSQL database
+- Node.js compatible with the project's Next.js version
+- npm
+- PostgreSQL database
 - Git
 
 ### 1. Clone the repository
@@ -70,53 +113,64 @@ npm install
 
 ### 3. Configure environment variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root and configure the required values:
 
 ```env
 DATABASE_URL="your_postgresql_connection_string"
 JWT_SECRET="your_strong_random_secret"
 ```
 
-Replace the example values with your own credentials. Never commit real secrets to GitHub.
+Use your own database connection string and a strong secret. Never commit `.env` or production credentials to GitHub.
 
-### 4. Prepare Prisma
+### 4. Generate Prisma Client
 
 ```bash
 npx prisma generate
 ```
 
-For a fresh database, review the existing migrations and configure the database using the project's Prisma migration workflow before starting the application.
+### 5. Apply database migrations
 
-### 5. Start the development server
+```bash
+npx prisma migrate deploy
+```
+
+Ensure the database is configured and migrations are present before running this command.
+
+### 6. Start the development server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Production Build
+### 7. Verify the production build
 
 ```bash
 npm run build
 ```
 
-The build command generates the Prisma Client before building the Next.js application.
+## Deployment
 
-## Security
+The application is deployed on Vercel, with PostgreSQL hosted on Supabase.
 
-- Store credentials in environment variables.
-- Never publish production secrets or real patient information.
-- Use dummy patient data when demonstrating the application.
-- Restrict administrative operations according to user roles.
+- **Live application:** https://medlead.vercel.app/
+- **Source code:** https://github.com/shubhhh009/medlead
 
-## Author
+Configure the required environment variables in the deployment platform before deploying.
 
-**Shubham Tiwari**
+## Security Notes
 
-- GitHub: [@shubhhh009](https://github.com/shubhhh009)
-- Live Project: [medlead.vercel.app](https://medlead.vercel.app/)
+- Keep database credentials and JWT secrets out of source control.
+- Use strong, unique production secrets.
+- Restrict access to authorized users and assigned leads.
+- Use fictional data for public demonstrations; do not publish real patient information.
+- Configure demo accounts and permissions safely before sharing access publicly.
+
+## Project Purpose
+
+MedLead demonstrates full-stack application development, relational database integration, authentication, role-based authorization, CRUD operations, workflow management, audit-style activity tracking, and cloud deployment.
 
 ---
 
-Built with Next.js, TypeScript, Prisma, and PostgreSQL.
+*Built as a full-stack patient inquiry CRM project.*
