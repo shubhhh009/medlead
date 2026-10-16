@@ -1,53 +1,122 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# MedLead — Patient Inquiry CRM
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+A full-stack patient inquiry and lead management platform built to help healthcare teams manage international patient inquiries, assign leads, track treatment journeys, and maintain follow-up activity.
 
-# testing
-/coverage
+<p align="center">
+  <a href="https://medlead.vercel.app/"><strong>Live Demo</strong></a> ·
+  <a href="https://github.com/shubhhh009/medlead"><strong>GitHub Repository</strong></a>
+</p>
 
-# next.js
-/.next/
-/out/
+## Overview
 
-# production
-/build
+MedLead centralizes patient inquiries in a CRM workflow. Administrators can manage incoming leads, assign them to tele-callers, monitor lead statuses, and review notes and activity history.
 
-# misc
-.DS_Store
-*.pem
+## Key Features
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+- **Patient Inquiry Form:** Collect patient contact details, country, treatment preferences, preferred city, and inquiry descriptions.
+- **Lead Management:** Search, filter, and paginate patient inquiries.
+- **Lead Status Workflow:** Track leads from New through Contacted, Reports Received, Quotation Sent, Travel Planned, Converted, or Lost.
+- **Role-Based Access Control:** Separate Admin and Tele-caller permissions.
+- **Lead Assignment:** Assign patient inquiries to tele-callers.
+- **Notes and Activity Timeline:** Maintain notes and track lead-related updates.
+- **Dashboard:** Review lead statistics and team information.
+- **Authentication:** Login/logout with JWT-based authentication and password hashing.
+- **Duplicate Prevention:** Detect duplicate inquiries using email or phone information.
 
-# env files (can opt-in for committing if needed)
-.env*
+## Tech Stack
 
-# vercel
-.vercel
+| Layer | Technologies |
+|---|---|
+| Frontend | Next.js, React, TypeScript, Tailwind CSS |
+| Backend | Next.js API Routes |
+| Database | PostgreSQL with Supabase |
+| ORM | Prisma |
+| Authentication | jose, JWT, bcryptjs |
+| Deployment | Vercel |
+| Version Control | Git, GitHub |
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+## Application Screenshots
 
-/src/generated/prisma
+Screenshots will be added here.
 
-# Local authentication cookies and backups
-cookies.txt
-*.backup
-*.bak
+<!-- Add screenshots to the screenshots/ directory and embed them below.
+Example:
+![Patient Inquiry Form](screenshots/01-patient-inquiry.png)
+![Admin Dashboard](screenshots/02-admin-dashboard.png)
+![Lead Management](screenshots/03-leads-management.png)
+![Activity Timeline](screenshots/04-activity-timeline.png)
+-->
 
-# Local tool configuration
-.claude/
-.windsurf/
-.agents/
+## Run Locally
+
+### Prerequisites
+
+- Node.js and npm
+- A PostgreSQL database
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/shubhhh009/medlead.git
+cd medlead
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL="your_postgresql_connection_string"
+JWT_SECRET="your_strong_random_secret"
+```
+
+Replace the example values with your own credentials. Never commit real secrets to GitHub.
+
+### 4. Prepare Prisma
+
+```bash
+npx prisma generate
+```
+
+For a fresh database, review the existing migrations and configure the database using the project's Prisma migration workflow before starting the application.
+
+### 5. Start the development server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+## Production Build
+
+```bash
+npm run build
+```
+
+The build command generates the Prisma Client before building the Next.js application.
+
+## Security
+
+- Store credentials in environment variables.
+- Never publish production secrets or real patient information.
+- Use dummy patient data when demonstrating the application.
+- Restrict administrative operations according to user roles.
+
+## Author
+
+**Shubham Tiwari**
+
+- GitHub: [@shubhhh009](https://github.com/shubhhh009)
+- Live Project: [medlead.vercel.app](https://medlead.vercel.app/)
+
+---
+
+Built with Next.js, TypeScript, Prisma, and PostgreSQL.
