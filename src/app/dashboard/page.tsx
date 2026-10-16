@@ -9,6 +9,19 @@ type DashboardData = {
   convertedLeads: number;
   lostLeads: number;
   totalUsers: number;
+  conversionRate: number;
+  statusDistribution: { status: string; count: number }[];
+  countryDistribution: { country: string; count: number }[];
+  telecallerPerformance: {
+    id: string;
+    name: string;
+    email: string;
+    assignedLeads: number;
+    convertedLeads: number;
+    conversionRate: number;
+  }[];
+  followUpsDueToday: number;
+  overdueFollowUps: number;
 };
 
 export default function DashboardPage() {
@@ -172,53 +185,104 @@ export default function DashboardPage() {
                   ))}
                 </div>
 
-                <div className="mt-8 grid gap-6 lg:grid-cols-3">
-                  <article className="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-2">
-                    <h4 className="text-lg font-bold">Pipeline summary</h4>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Lead status distribution
-                    </p>
+                <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <p className="text-sm font-medium text-slate-500">Conversion rate</p>
+                  <p className="mt-3 text-3xl font-bold text-emerald-600">{data?.conversionRate ?? 0}%</p>
+                  <p className="mt-2 text-xs text-slate-400">Converted leads / all leads</p>
+                </article>
+                <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <p className="text-sm font-medium text-slate-500">Follow-ups due today</p>
+                  <p className="mt-3 text-3xl font-bold">{data?.followUpsDueToday ?? 0}</p>
+                  <p className="mt-2 text-xs text-slate-400">Pending follow-ups scheduled for today</p>
+                </article>
+                <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <p className="text-sm font-medium text-slate-500">Overdue follow-ups</p>
+                  <p className="mt-3 text-3xl font-bold text-rose-600">{data?.overdueFollowUps ?? 0}</p>
+                  <p className="mt-2 text-xs text-slate-400">Past-due follow-ups not completed</p>
+                </article>
+              </div>
 
-                    {[
-                      {
-                        label: "New",
-                        value: data?.newLeads ?? 0,
-                        color: "bg-blue-600",
-                      },
-                      {
-                        label: "Converted",
-                        value: data?.convertedLeads ?? 0,
-                        color: "bg-emerald-500",
-                      },
-                      {
-                        label: "Lost",
-                        value: data?.lostLeads ?? 0,
-                        color: "bg-rose-500",
-                      },
-                    ].map((item) => {
+              <div className="mt-8 grid gap-6 xl:grid-cols-2">
+                <article className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <h4 className="text-lg font-bold">All pipeline statuses</h4>
+                  <p className="mt-1 text-sm text-slate-500">Live lead distribution by status</p>
+                  <div className="mt-5 space-y-4">
+                    {(data?.statusDistribution ?? []).map((item) => {
                       const total = data?.totalLeads ?? 0;
-                      const percent =
-                        total > 0 ? (item.value / total) * 100 : 0;
-
+                      const percent = total > 0 ? (item.count / total) * 100 : 0;
                       return (
-                        <div key={item.label} className="mt-6">
-                          <div className="mb-2 flex justify-between text-sm">
-                            <span className="font-medium">{item.label}</span>
-                            <span className="text-slate-500">
-                              {item.value} ({Math.round(percent)}%)
-                            </span>
+                        <div key={item.status}>
+                          <div className="mb-1.5 flex justify-between gap-3 text-sm">
+                            <span className="font-medium">{item.status.replaceAll("_", " ")}</span>
+                            <span className="text-slate-500">{item.count} ({Math.round(percent)}%)</span>
                           </div>
                           <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-                            <div
-                              className={`h-full rounded-full ${item.color}`}
-                              style={{ width: `${percent}%` }}
-                            />
+                            <div className="h-full rounded-full bg-blue-600" style={{ width: `${percent}%` }} />
                           </div>
                         </div>
                       );
                     })}
-                  </article>
+                  </div>
+                </article>
 
+                <article className="rounded-2xl border border-slate-200 bg-white p-6">
+                  <h4 className="text-lg font-bold">Top countries</h4>
+                  <p className="mt-1 text-sm text-slate-500">Countries with the most patient inquiries</p>
+                  <div className="mt-5 space-y-4">
+                    {(data?.countryDistribution ?? []).map((item) => {
+                      const max = Math.max(1, ...(data?.countryDistribution ?? []).map((country) => country.count));
+                      const percent = (item.count / max) * 100;
+                      return (
+                        <div key={item.country}>
+                          <div className="mb-1.5 flex justify-between gap-3 text-sm">
+                            <span className="font-medium">{item.country}</span>
+                            <span className="text-slate-500">{item.count}</span>
+                          </div>
+                          <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-full rounded-full bg-indigo-500" style={{ width: `${percent}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {(data?.countryDistribution.length ?? 0) === 0 && <p className="text-sm text-slate-400">No country data available.</p>}
+                  </div>
+                </article>
+              </div>
+
+              <article className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <div className="border-b border-slate-200 p-6">
+                  <h4 className="text-lg font-bold">Tele-caller performance</h4>
+                  <p className="mt-1 text-sm text-slate-500">Assigned leads and conversions by team member</p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[650px] text-left text-sm">
+                    <thead className="bg-slate-50 text-slate-500">
+                      <tr>
+                        <th className="px-6 py-3 font-semibold">Tele-caller</th>
+                        <th className="px-6 py-3 font-semibold">Assigned</th>
+                        <th className="px-6 py-3 font-semibold">Converted</th>
+                        <th className="px-6 py-3 font-semibold">Conversion rate</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {(data?.telecallerPerformance ?? []).map((person) => (
+                        <tr key={person.id}>
+                          <td className="px-6 py-4">
+                            <p className="font-semibold">{person.name}</p>
+                            <p className="mt-1 text-xs text-slate-500">{person.email}</p>
+                          </td>
+                          <td className="px-6 py-4">{person.assignedLeads}</td>
+                          <td className="px-6 py-4">{person.convertedLeads}</td>
+                          <td className="px-6 py-4 font-semibold">{person.conversionRate}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+                <div className="mt-8">
                   <article className="rounded-2xl border border-slate-200 bg-white p-6">
                     <h4 className="text-lg font-bold">Team workspace</h4>
                     <p className="mt-1 text-sm text-slate-500">

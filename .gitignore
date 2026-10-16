@@ -22,3 +22,18 @@ build/
 
 # OS files
 .DS_Store
+
+# Generated files
+src/generated/
+next-env.d.ts
+*.tsbuildinfo
+
+# Local cookies and credentials
+cookies.txt
+
+# Local backups
+*.backup
+*.bak
+*.backup2
+*.before-*
+*.page.tsx.before-*

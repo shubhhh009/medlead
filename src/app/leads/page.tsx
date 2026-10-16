@@ -47,6 +47,18 @@ type LeadNote = {
   };
 };
 
+type LeadFollowUp = {
+  id: string;
+  dueAt: string;
+  completedAt: string | null;
+  note: string | null;
+  assignedTo: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 type LeadActivity = {
   id: string;
   action: string;
@@ -122,6 +134,17 @@ export default function LeadsPage() {
   const [activities, setActivities] = useState<LeadActivity[]>([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [activitiesError, setActivitiesError] = useState("");
+
+  // Follow-up panel state
+  const [followUps, setFollowUps] = useState<LeadFollowUp[]>([]);
+  const [followUpsLoading, setFollowUpsLoading] = useState(false);
+  const [followUpSaving, setFollowUpSaving] = useState(false);
+  const [followUpError, setFollowUpError] = useState("");
+  const [followUpMessage, setFollowUpMessage] = useState("");
+  const [followUpDueAt, setFollowUpDueAt] = useState("");
+  const [followUpNote, setFollowUpNote] = useState("");
+  const [completingFollowUpId, setCompletingFollowUpId] = useState<string | null>(null);
+
 
 
   const loadLeads = useCallback(async () => {
@@ -276,9 +299,45 @@ export default function LeadsPage() {
     }
   }
 
+  async function loadLeadFollowUps(leadId: string) {
+    setFollowUpsLoading(true);
+    setFollowUpError("");
+    setFollowUps([]);
+
+    try {
+      const response = await fetch(
+        `/api/leads/${leadId}/follow-ups`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401) {
+        router.replace("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to load follow-ups.");
+      }
+
+      setFollowUps(result.data);
+    } catch (err) {
+      setFollowUpError(
+        err instanceof Error ? err.message : "Unable to load follow-ups."
+      );
+    } finally {
+      setFollowUpsLoading(false);
+    }
+  }
+
   async function openLeadNotes(lead: Lead) {
     setSelectedLead(lead);
     void loadLeadActivities(lead.id);
+    void loadLeadFollowUps(lead.id);
     setNotes([]);
     setNoteContent("");
     setNotesError("");
@@ -350,6 +409,92 @@ export default function LeadsPage() {
       );
     } finally {
       setNoteSaving(false);
+    }
+  }
+
+  async function scheduleFollowUp() {
+    if (!selectedLead || !followUpDueAt || followUpSaving) return;
+
+    setFollowUpSaving(true);
+    setFollowUpError("");
+    setFollowUpMessage("");
+
+    try {
+      const response = await fetch(
+        `/api/leads/${selectedLead.id}/follow-ups`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dueAt: new Date(followUpDueAt).toISOString(),
+            note: followUpNote.trim() || undefined,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401) {
+        router.replace("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to schedule follow-up.");
+      }
+
+      setFollowUpDueAt("");
+      setFollowUpNote("");
+      setFollowUpMessage("Follow-up scheduled successfully.");
+      await loadLeadFollowUps(selectedLead.id);
+      void loadLeadActivities(selectedLead.id);
+    } catch (err) {
+      setFollowUpError(
+        err instanceof Error ? err.message : "Unable to schedule follow-up."
+      );
+    } finally {
+      setFollowUpSaving(false);
+    }
+  }
+
+  async function completeFollowUp(followUpId: string) {
+    if (!selectedLead || completingFollowUpId) return;
+
+    setCompletingFollowUpId(followUpId);
+    setFollowUpError("");
+    setFollowUpMessage("");
+
+    try {
+      const response = await fetch(
+        `/api/leads/${selectedLead.id}/follow-ups/${followUpId}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401) {
+        router.replace("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to complete follow-up.");
+      }
+
+      setFollowUpMessage("Follow-up marked as complete.");
+      await loadLeadFollowUps(selectedLead.id);
+      void loadLeadActivities(selectedLead.id);
+    } catch (err) {
+      setFollowUpError(
+        err instanceof Error ? err.message : "Unable to complete follow-up."
+      );
+    } finally {
+      setCompletingFollowUpId(null);
     }
   }
 
@@ -745,6 +890,139 @@ export default function LeadsPage() {
                 {notesMessage}
               </div>
             )}
+
+            <section className="mt-7 rounded-2xl border border-slate-200 p-4">
+              <h3 className="text-base font-bold">Follow-ups</h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Schedule the next patient contact and track pending tasks.
+              </p>
+
+              <form
+                className="mt-4 space-y-3"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void scheduleFollowUp();
+                }}
+              >
+                <div>
+                  <label
+                    htmlFor="follow-up-due-at"
+                    className="mb-1 block text-sm font-semibold text-slate-700"
+                  >
+                    Follow-up date and time
+                  </label>
+                  <input
+                    id="follow-up-due-at"
+                    type="datetime-local"
+                    value={followUpDueAt}
+                    onChange={(event) => setFollowUpDueAt(event.target.value)}
+                    required
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="follow-up-note"
+                    className="mb-1 block text-sm font-semibold text-slate-700"
+                  >
+                    Reminder note (optional)
+                  </label>
+                  <textarea
+                    id="follow-up-note"
+                    value={followUpNote}
+                    onChange={(event) => setFollowUpNote(event.target.value)}
+                    maxLength={1000}
+                    rows={2}
+                    placeholder="For example: Call patient to discuss the quotation."
+                    className="w-full resize-y rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!followUpDueAt || followUpSaving}
+                  className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {followUpSaving ? "Scheduling..." : "Schedule Follow-up"}
+                </button>
+              </form>
+
+              {followUpError && (
+                <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                  {followUpError}
+                </p>
+              )}
+              {followUpMessage && (
+                <p role="status" className="mt-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
+                  {followUpMessage}
+                </p>
+              )}
+
+              <div className="mt-5 space-y-3">
+                {followUpsLoading ? (
+                  <p className="text-sm text-slate-500">Loading follow-ups...</p>
+                ) : followUps.length === 0 ? (
+                  <p className="text-sm text-slate-500">No follow-ups scheduled.</p>
+                ) : (
+                  followUps.map((followUp) => {
+                    const overdue =
+                      !followUp.completedAt &&
+                      new Date(followUp.dueAt).getTime() < Date.now();
+
+                    return (
+                      <article
+                        key={followUp.id}
+                        className="rounded-xl border border-slate-200 p-3"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-slate-800">
+                              {new Date(followUp.dueAt).toLocaleString()}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Assigned to: {followUp.assignedTo.name}
+                            </p>
+                          </div>
+                          {followUp.completedAt ? (
+                            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                              Completed
+                            </span>
+                          ) : overdue ? (
+                            <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                              Overdue
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+
+                        {followUp.note && (
+                          <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
+                            {followUp.note}
+                          </p>
+                        )}
+
+                        {!followUp.completedAt && (
+                          <button
+                            type="button"
+                            onClick={() => void completeFollowUp(followUp.id)}
+                            disabled={completingFollowUpId === followUp.id}
+                            className="mt-3 rounded-lg border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                          >
+                            {completingFollowUpId === followUp.id
+                              ? "Updating..."
+                              : "Mark Complete"}
+                          </button>
+                        )}
+                      </article>
+                    );
+                  })
+                )}
+              </div>
+            </section>
 
             <div className="mt-7">
               <h3 className="text-base font-bold">Activity Timeline</h3>
